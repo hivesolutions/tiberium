@@ -1,23 +1,23 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-#  Hive Tiberium System
+# Hive Tiberium System
 # Copyright (C) 2008-2012 Hive Solutions Lda.
 #
-# This file is part of  Hive Tiberium System.
+# This file is part of Hive Tiberium System.
 #
-#  Hive Tiberium System is free software: you can redistribute it and/or modify
+# Hive Tiberium System is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-#  Hive Tiberium System is distributed in the hope that it will be useful,
+# Hive Tiberium System is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with  Hive Tiberium System. If not, see <http://www.gnu.org/licenses/>.
+# along with Hive Tiberium System. If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = "João Magalhães <joamag@hive.pt>"
 """ The author(s) of the module """
@@ -41,9 +41,14 @@ import os
 import sys
 import shutil
 import getopt
+import base64
+import urllib
+import urllib2
 import zipfile
 import tempfile
 import subprocess
+
+SOUL_URL = "http://srio.hive:5000"
 
 def create_repo(path):
     pass
@@ -102,9 +107,26 @@ def generate_sun(path):
     finally:
         _zip.close()
 
+def deploy_sun(sun_path):
+    sun_file = open(sun_path, "rb")
+    try: sun_contents = sun_file.read()
+    finally: sun_file.close()
+
+    url = SOUL_URL + "/deploy"
+    values = {
+        "file" : base64.b64encode(sun_contents)
+    }
+
+    data = urllib.urlencode(values)
+    req = urllib2.Request(url, data)
+    response = urllib2.urlopen(req)
+    response.read()
+
 def execute_repo(path):
+    path = os.path.abspath(path)
     process_repo(path)
     generate_sun(path)
+    deploy_sun(path)
 
 def execute_sun(sun_path):
     temp_path = tempfile.mkdtemp()
@@ -156,9 +178,9 @@ def run():
 
     for option, arg in options:
         if option in ("-r", "--repo"):
-            repo_path = arg
+            repo_path = os.path.abspath(arg)
         elif option in ("-s", "--sun"):
-            sun_path = arg
+            sun_path = os.path.abspath(arg)
 
     if not sun_path == None: execute_sun(sun_path)
     if not repo_path == None: execute_repo(repo_path)
