@@ -84,9 +84,8 @@ def generate_sun(path):
     """
 
     base = os.path.basename(path)
-
     tiberium_path = os.path.join(path, "tiberium")
-    sun_path = os.path.join(path, "tiberium", "%s.sun" % base)
+    sun_path = os.path.join(tiberium_path, "%s.sun" % base)
     if os.path.exists(tiberium_path): os.remove(sun_path)
     else: os.makedirs(tiberium_path)
 
@@ -107,13 +106,17 @@ def generate_sun(path):
     finally:
         _zip.close()
 
-def deploy_sun(sun_path):
+def deploy_sun(path):
+    base = os.path.basename(path)
+    tiberium_path = os.path.join(path, "tiberium")
+    sun_path = os.path.join(tiberium_path, "%s.sun" % base)
     sun_file = open(sun_path, "rb")
     try: sun_contents = sun_file.read()
     finally: sun_file.close()
 
     url = SOUL_URL + "/deploy"
     values = {
+        "name" : base,
         "file" : base64.b64encode(sun_contents)
     }
 
