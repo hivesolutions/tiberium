@@ -52,19 +52,12 @@ def process_repo(path):
         current_path = os.getcwd()
         os.chdir(path)
         try:
-            os.environ["VIRTUAL_ENV"] = path
             return_value = subprocess.call("virtualenv venv --distribute", shell = True)
             if return_value: raise RuntimeError("Problem setting the virtual environment")
-            if os.name == "nt":
-                return_value = subprocess.call(
-                    "venv/Scripts/pip install -r requirements.txt",
-                    shell = True
-                )
-            else:
-                return_value = subprocess.call(
-                    "venv/bin/pip install -r requirements.txt",
-                    shell = True
-                )
+
+            if os.name == "nt": install_command = "venv/Scripts/pip install -r requirements.txt"
+            else: install_command = "venv/bin/pip install -r requirements.txt"
+            return_value = subprocess.call(install_command, shell = True)
             if return_value: raise RuntimeError("Problem installing pip requirements")
         finally:
             os.chdir(current_path)
@@ -103,6 +96,14 @@ def generate_sun(path):
         os.path.walk(path, add_sun, None)
     finally:
         zip.close()
+
+def execute_sun(path):
+    pass
+
+    #1. PEGA NO SUN
+    #2. descomprime
+    #3. mete as variaveis de ambiente certas (PORT, etc)
+    #4. executa o comando no procfile
 
 def run():
     arg_len = len(sys.argv)
