@@ -39,7 +39,9 @@ __license__ = "GNU General Public License (GPL), Version 3"
 
 import os
 import sys
+import shutil
 import zipfile
+import tempfile
 import subprocess
 
 def create_repo(path):
@@ -80,7 +82,7 @@ def generate_sun(path):
     if os.path.exists(tiberium_path): os.remove(sun_path)
     else: os.makedirs(tiberium_path)
 
-    zip = zipfile.ZipFile(sun_path, "w")
+    _zip = zipfile.ZipFile(sun_path, "w")
 
     try:
         def add_sun(arg, dirname, names):
@@ -91,25 +93,57 @@ def generate_sun(path):
                 _path = os.path.join(dirname, name)
                 if os.path.isdir(_path): continue
                 relative_path = os.path.relpath(_path, path)
-                zip.write(_path, relative_path)
+                _zip.write(_path, relative_path)
 
         os.path.walk(path, add_sun, None)
     finally:
-        zip.close()
+        _zip.close()
 
-def execute_sun(path):
-    pass
+def execute_sun(sun_path):
+    temp_path = tempfile.mkdtemp()
+    _zip = zipfile.ZipFile(sun_path, "r")
+    try: _zip.extractall(temp_path)
+    finally: _zip.close()
 
-    #1. PEGA NO SUN
-    #2. descomprime
-    #3. mete as variaveis de ambiente certas (PORT, etc)
-    #4. executa o comando no procfile
+    procfile_path = os.path.join(temp_path, "Procfile")
+    procfile = _read_procfile(procfile_path)
+
+    current_path = os.getcwd()
+    os.chdir(temp_path)
+
+    try:
+        web_exec = procfile["web"]
+        subprocess.call(web_exec, stdout = sys.stdout, stderr = sys.stderr, shell = True)
+    finally:
+        os.chdir(current_path)
+        shutil.rmtree(temp_path)
+
+def _read_procfile(path):
+    file = open(path, "r")
+    try: contents = file.read()
+    finally: file.close()
+
+    procfile = {}
+
+    lines = contents.split("\n")
+    for line in lines:
+        line = line.strip()
+        if not line: continue
+
+        key, value = line.split(":", 1)
+        key = key.strip()
+        value = value.strip()
+        procfile[key] = value
+
+    return procfile
 
 def run():
-    arg_len = len(sys.argv)
-    path = os.path.abspath(sys.argv[1]) if arg_len > 1 else os.getcwd()
-    process_repo(path)
-    generate_sun(path)
+    execute_sun("C:/tiberium.sun")
+
+    #arg_len = len(sys.argv)
+    #path = os.path.abspath(sys.argv[1]) if arg_len > 1 else os.getcwd()
+    #process_repo(path)
+    #generate_sun(path)
 
 if __name__ == "__main__":
     run()
