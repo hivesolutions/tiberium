@@ -83,9 +83,10 @@ def generate_sun(path):
     base = os.path.basename(path)
 
     tiberium_path = os.path.join(path, "tiberium")
-    if not os.path.exists(tiberium_path): os.makedirs(tiberium_path)
-
     sun_path = os.path.join(path, "tiberium", "%s.sun" % base)
+    if os.path.exists(tiberium_path): os.remove(sun_path)
+    else: os.makedirs(tiberium_path)
+
     zip = zipfile.ZipFile(sun_path, "w")
 
     try:
