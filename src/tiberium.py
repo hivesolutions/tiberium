@@ -37,11 +37,21 @@ __copyright__ = "Copyright (c) 2008-2012 Hive Solutions Lda."
 __license__ = "GNU General Public License (GPL), Version 3"
 """ The license for the module """
 
+import os
+import zipfile
+
 def create_repo(path):
     pass
 
 def process_repo(path):
-    pass
+    names = os.listdir(path)
+    
+    if "requirements.txt" in names:
+        # 1. tenho de trocar para o directorio
+        # 2. tenho de fazer setup do venv
+        # 3. tenho de instalar os pips todos
+        # pip install -r requirements.txt
+        pass
 
 def generate_sun(path):
     """
@@ -54,4 +64,32 @@ def generate_sun(path):
     be used in the construction of the sun file.
     """
 
-    pass
+    base = os.path.basename(path)
+
+    tiberium_path = os.path.join(path, "tiberium")
+    if not os.path.exists(tiberium_path): os.makedirs(tiberium_path, )
+
+    sun_path = os.path.join(path, "tiberium", "%s.sun" % base)
+    zip = zipfile.ZipFile(sun_path, "w")
+
+    try:
+        def add_sun(arg, dirname, names):
+            if ".git" in names: names.remove(".git")
+            if "tiberium" in names: names.remove("tiberium")
+
+            for name in names:
+                _path = os.path.join(dirname, name)
+                if os.path.isdir(_path): continue
+                relative_path = os.path.relpath(_path, path)
+                zip.write(_path, relative_path)
+
+        os.path.walk(path, add_sun, None)
+    finally:
+        zip.close()
+
+def run():
+    process_repo("C:/tiberium")
+    generate_sun("C:/tiberium")
+
+if __name__ == "__main__":
+    run()
