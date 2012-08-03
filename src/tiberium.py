@@ -40,6 +40,7 @@ __license__ = "GNU General Public License (GPL), Version 3"
 import os
 import sys
 import shutil
+import getopt
 import zipfile
 import tempfile
 import subprocess
@@ -47,22 +48,24 @@ import subprocess
 def create_repo(path):
     pass
 
+def process_requirements(path):
+    current_path = os.getcwd()
+    os.chdir(path)
+    try:
+        return_value = subprocess.call("virtualenv venv --distribute", shell = True)
+        if return_value: raise RuntimeError("Problem setting the virtual environment")
+
+        if os.name == "nt": install_command = "venv/Scripts/pip install -r requirements.txt"
+        else: install_command = "venv/bin/pip install -r requirements.txt"
+        return_value = subprocess.call(install_command, shell = True)
+        if return_value: raise RuntimeError("Problem installing pip requirements")
+    finally:
+        os.chdir(current_path)
+
 def process_repo(path):
     names = os.listdir(path)
 
-    if "requirements.txt" in names:
-        current_path = os.getcwd()
-        os.chdir(path)
-        try:
-            return_value = subprocess.call("virtualenv venv --distribute", shell = True)
-            if return_value: raise RuntimeError("Problem setting the virtual environment")
-
-            if os.name == "nt": install_command = "venv/Scripts/pip install -r requirements.txt"
-            else: install_command = "venv/bin/pip install -r requirements.txt"
-            return_value = subprocess.call(install_command, shell = True)
-            if return_value: raise RuntimeError("Problem installing pip requirements")
-        finally:
-            os.chdir(current_path)
+    if "requirements.txt" in names: process_requirements(path)
 
 def generate_sun(path):
     """
@@ -98,6 +101,10 @@ def generate_sun(path):
         os.path.walk(path, add_sun, None)
     finally:
         _zip.close()
+
+def execute_repo(path):
+    process_repo(path)
+    generate_sun(path)
 
 def execute_sun(sun_path):
     temp_path = tempfile.mkdtemp()
@@ -138,12 +145,23 @@ def _read_procfile(path):
     return procfile
 
 def run():
-    execute_sun("C:/tiberium.sun")
+    try:
+        options, _args = getopt.getopt(sys.argv[1:], "r:s:", ["repo=", "sun="])
+    except getopt.GetoptError, exception:
+        print str(exception)
+        sys.exit(2)
 
-    #arg_len = len(sys.argv)
-    #path = os.path.abspath(sys.argv[1]) if arg_len > 1 else os.getcwd()
-    #process_repo(path)
-    #generate_sun(path)
+    repo_path = None
+    sun_path = None
+
+    for option, arg in options:
+        if option in ("-r", "--repo"):
+            repo_path = arg
+        elif option in ("-s", "--sun"):
+            sun_path = arg
+
+    if not sun_path == None: execute_sun(sun_path)
+    if not repo_path == None: execute_repo(repo_path)
 
 if __name__ == "__main__":
     run()
