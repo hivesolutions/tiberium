@@ -38,6 +38,7 @@ __license__ = "GNU General Public License (GPL), Version 3"
 """ The license for the module """
 
 import os
+import sys
 import zipfile
 import subprocess
 
@@ -52,9 +53,18 @@ def process_repo(path):
         os.chdir(path)
         try:
             os.environ["VIRTUAL_ENV"] = path
-            return_value = subprocess.call("virtualenv venv --distribute")
+            return_value = subprocess.call("virtualenv venv --distribute", shell = True)
             if return_value: raise RuntimeError("Problem setting the virtual environment")
-            return_value = subprocess.call("venv/Scripts/pip install -r requirements.txt")
+            if os.name == "nt":
+                return_value = subprocess.call(
+                    "venv/Scripts/pip install -r requirements.txt",
+                    shell = True
+                )
+            else:
+                return_value = subprocess.call(
+                    "venv/bin/pip install -r requirements.txt",
+                    shell = True
+                )
             if return_value: raise RuntimeError("Problem installing pip requirements")
         finally:
             os.chdir(current_path)
@@ -73,7 +83,7 @@ def generate_sun(path):
     base = os.path.basename(path)
 
     tiberium_path = os.path.join(path, "tiberium")
-    if not os.path.exists(tiberium_path): os.makedirs(tiberium_path, )
+    if not os.path.exists(tiberium_path): os.makedirs(tiberium_path)
 
     sun_path = os.path.join(path, "tiberium", "%s.sun" % base)
     zip = zipfile.ZipFile(sun_path, "w")
@@ -94,7 +104,8 @@ def generate_sun(path):
         zip.close()
 
 def run():
-    path = os.getcwd()
+    arg_len = len(sys.argv)
+    path = os.path.abspath(sys.argv[1]) if arg_len > 1 else os.getcwd()
     process_repo(path)
     generate_sun(path)
 
