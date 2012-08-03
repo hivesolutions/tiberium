@@ -94,8 +94,9 @@ def generate_sun(path):
         zip.close()
 
 def run():
-    process_repo("")
-    generate_sun("")
+    path = os.getcwd()
+    process_repo(path)
+    generate_sun(path)
 
 if __name__ == "__main__":
     run()
