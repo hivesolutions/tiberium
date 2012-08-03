@@ -39,19 +39,25 @@ __license__ = "GNU General Public License (GPL), Version 3"
 
 import os
 import zipfile
+import subprocess
 
 def create_repo(path):
     pass
 
 def process_repo(path):
     names = os.listdir(path)
-    
+
     if "requirements.txt" in names:
-        # 1. tenho de trocar para o directorio
-        # 2. tenho de fazer setup do venv
-        # 3. tenho de instalar os pips todos
-        # pip install -r requirements.txt
-        pass
+        current_path = os.getcwd()
+        os.chdir(path)
+        try:
+            os.environ["VIRTUAL_ENV"] = path
+            return_value = subprocess.call("virtualenv venv --distribute")
+            if return_value: raise RuntimeError("Problem setting the virtual environment")
+            return_value = subprocess.call("venv/Scripts/pip install -r requirements.txt")
+            if return_value: raise RuntimeError("Problem installing pip requirements")
+        finally:
+            os.chdir(current_path)
 
 def generate_sun(path):
     """
@@ -88,8 +94,8 @@ def generate_sun(path):
         zip.close()
 
 def run():
-    process_repo("C:/tiberium")
-    generate_sun("C:/tiberium")
+    process_repo("")
+    generate_sun("")
 
 if __name__ == "__main__":
     run()
