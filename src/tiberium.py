@@ -138,8 +138,9 @@ def execute_sun(sun_path, sync = True):
 
     try:
         web_exec = procfile["web"]
+        web_exec_l = web_exec.split()
         process = subprocess.Popen(
-            web_exec, stdout = sys.stdout, stderr = sys.stderr, shell = not os.name == "nt"
+            web_exec_l, stdout = sys.stdout, stderr = sys.stderr, shell = not os.name == "nt"
         )
         sync and process.wait()
     finally:
