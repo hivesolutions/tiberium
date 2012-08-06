@@ -138,8 +138,7 @@ def execute_sun(sun_path):
 
     try:
         web_exec = procfile["web"]
-        #subprocess.Popen([web_exec], stdout = sys.stdout, stderr = sys.stderr, shell = True)
-        #subprocess.call(web_exec, stdout = sys.stdout, stderr = sys.stderr, shell = True)
+        subprocess.call(web_exec, stdout = sys.stdout, stderr = sys.stderr, shell = True)
     finally:
         os.chdir(current_path)
         shutil.rmtree(temp_path)
