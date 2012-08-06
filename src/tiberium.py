@@ -50,7 +50,21 @@ import utils.http_util
 SOUL_URL = "http://srio.hive:5000"
 
 def create_repo(path):
-    pass
+    if not os.path.exists(path): os.makedirs(path)
+
+    current_path = os.getcwd()
+    os.chdir(path)
+    try:
+        return_value = subprocess.call("git init", shell = True)
+        if return_value: raise RuntimeError("Problem initializing git repository")
+
+        return_value = subprocess.call("git config core.worktree %s" % path, shell = True)
+        if return_value: raise RuntimeError("Problem configuring git repository")
+
+        return_value = subprocess.call("git config receive.denycurrentbranch ignore", shell = True)
+        if return_value: raise RuntimeError("Problem configuring git repository")
+    finally:
+        os.chdir(current_path)
 
 def process_requirements(path):
     current_path = os.getcwd()
