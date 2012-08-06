@@ -41,12 +41,11 @@ import os
 import sys
 import shutil
 import getopt
-import base64
-import urllib
-import urllib2
 import zipfile
 import tempfile
 import subprocess
+
+import utils.http_util
 
 SOUL_URL = "http://srio.hive:5000"
 
@@ -113,17 +112,11 @@ def deploy_sun(path):
     sun_file = open(sun_path, "rb")
     try: sun_contents = sun_file.read()
     finally: sun_file.close()
-
-    url = SOUL_URL + "/deploy"
-    values = {
-        "name" : base,
-        "file" : base64.b64encode(sun_contents)
-    }
-
-    data = urllib.urlencode(values)
-    req = urllib2.Request(url, data)
-    response = urllib2.urlopen(req)
-    response.read()
+    utils.http_util.post_multipart(
+        SOUL_URL + "/deploy"
+        (("name", base),),
+        (("file", base, sun_contents),)
+    )
 
 def execute_repo(path):
     path = os.path.abspath(path)
