@@ -60,9 +60,6 @@ setuptools.setup(
     package_dir = {
         "" : os.path.normpath("src")
     },
-    install_requires = [
-        "flask"
-    ],
     classifiers = [
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
