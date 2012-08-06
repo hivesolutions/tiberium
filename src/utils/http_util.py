@@ -42,6 +42,8 @@ import urlparse
 import mimetypes
 
 BOUNDARY = "----------BnB31YzM9ukx7cEMCbBbEPUPR8Dwek8LEYyK7xVxm2zbixgeqQS8d7WkXYNUsUWM_$"
+""" The boundary value to be used in the multipart
+message as the separator between items """
 
 def post_multipart(url, fields = (), files = ()):
     url_parsing = urlparse.urlparse(url)
