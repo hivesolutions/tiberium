@@ -124,7 +124,7 @@ def execute_repo(path):
     generate_sun(path)
     deploy_sun(path)
 
-def execute_sun(sun_path, sync = True):
+def execute_sun(sun_path, env = {}, sync = True):
     temp_path = tempfile.mkdtemp()
     _zip = zipfile.ZipFile(sun_path, "r")
     try: _zip.extractall(temp_path)
@@ -137,10 +137,12 @@ def execute_sun(sun_path, sync = True):
     os.chdir(temp_path)
 
     try:
+        env = dict(os.environ.items() + env.items())
+
         web_exec = procfile["web"]
         web_exec_l = web_exec.split()
         process = subprocess.Popen(
-            web_exec_l, stdout = sys.stdout, stderr = sys.stderr, shell = not os.name == "nt"
+            web_exec_l, stdout = sys.stdout, stderr = sys.stderr, shell = False, env = env
         )
         sync and process.wait()
     finally:
