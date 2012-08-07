@@ -127,7 +127,7 @@ def deploy_sun(path):
     try: sun_contents = sun_file.read()
     finally: sun_file.close()
     utils.http_util.post_multipart(
-        SOUL_URL + "/deploy"
+        SOUL_URL + "/deploy",
         (("name", base),),
         (("file", base, sun_contents),)
     )
