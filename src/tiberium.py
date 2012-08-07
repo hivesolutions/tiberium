@@ -41,7 +41,7 @@ import os
 import sys
 import shutil
 import getopt
-import zipfile
+import tarfile
 import tempfile
 import subprocess
 
@@ -56,6 +56,13 @@ SEPARATORS = {
     "default" : ":"
 }
 """ The map defining the various path separators to
+be used to start the venv environment """
+
+VENV_PATHS = {
+    "nt" : "venv\Scripts",
+    "default" : "venv/bin"
+}
+""" The map defining the various paths for venv to
 be used to start the venv environment """
 
 def create_repo(path):
@@ -112,7 +119,7 @@ def generate_sun(path):
     if os.path.exists(tiberium_path): os.remove(sun_path)
     else: os.makedirs(tiberium_path)
 
-    _zip = zipfile.ZipFile(sun_path, "w")
+    _tar = tarfile.TarFile(sun_path, "w")
 
     try:
         def add_sun(arg, dirname, names):
@@ -123,11 +130,11 @@ def generate_sun(path):
                 _path = os.path.join(dirname, name)
                 if os.path.isdir(_path): continue
                 relative_path = os.path.relpath(_path, path)
-                _zip.write(_path, relative_path)
+                _tar.add(_path, relative_path)
 
         os.path.walk(path, add_sun, None)
     finally:
-        _zip.close()
+        _tar.close()
 
 def deploy_sun(path):
     base = os.path.basename(path)
@@ -151,9 +158,9 @@ def execute_repo(path):
 
 def execute_sun(sun_path, env = {}, sync = True):
     temp_path = tempfile.mkdtemp()
-    _zip = zipfile.ZipFile(sun_path, "r")
-    try: _zip.extractall(temp_path)
-    finally: _zip.close()
+    _tar = tarfile.TarFile(sun_path, "r")
+    try: _tar.extractall(temp_path)
+    finally: _tar.close()
 
     procfile_path = os.path.join(temp_path, "Procfile")
     procfile = _read_procfile(procfile_path)
@@ -164,15 +171,12 @@ def execute_sun(sun_path, env = {}, sync = True):
     try:
         env = dict(os.environ.items() + env.items())
 
-        os_name = os.name
-        default = SEPARATORS.get("default", [])
-        separator = SEPARATORS.get(os_name, default)
-
-        path = env.get("PATH", "")
-        env["PATH"] = "./venv/Scripts" + separator + path
-
         web_exec = procfile["web"]
         web_exec_l = web_exec.split()
+
+        is_venv = True #@TODO: HARDCODED MUST SOFTCODE THIS
+        is_venv and _apply_venv(temp_path, web_exec_l)
+
         process = subprocess.Popen(web_exec_l, shell = False, env = env)
         sync and process.wait()
     finally:
@@ -180,6 +184,17 @@ def execute_sun(sun_path, env = {}, sync = True):
         sync and shutil.rmtree(temp_path)
 
     return process, temp_path
+
+def _apply_venv(temp_path, exec_list):
+    os_name = os.name
+    if os_name == "nt": return
+
+    venv_path = VENV_PATHS.get("default", "")
+    venv_path = VENV_PATHS.get(os_name, venv_path)
+
+    venv_path_abs = os.path.join(temp_path, venv_path)
+    exec_list.insert(0, "PATH=%s:$PATH" % venv_path_abs)
+    exec_list.insert(0, "env")
 
 def _read_procfile(path):
     file = open(path, "r")
