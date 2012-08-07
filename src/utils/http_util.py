@@ -49,13 +49,13 @@ def post_multipart(url, fields = (), files = ()):
     url_parsing = urlparse.urlparse(url)
     host = url_parsing.netloc
     port = url_parsing.port
-    selector = url_parsing.selector
-    return post_multipart(host, port, selector, fields, files)
+    path = url_parsing.path
+    return _post_multipart(host, port, path, fields, files)
 
-def _post_multipart(host, port = 80, selector = "/", fields = (), files = ()):
+def _post_multipart(host, port = 80, path = "/", fields = (), files = ()):
     content_type, body = _encode_multipart(fields, files)
     http_client = httplib.HTTP(host, port)
-    http_client.putrequest("POST", selector)
+    http_client.putrequest("POST", path)
     http_client.putheader("content-type", content_type)
     http_client.putheader("content-length", str(len(body)))
     http_client.endheaders()
