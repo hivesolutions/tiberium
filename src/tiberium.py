@@ -97,6 +97,7 @@ def generate_sun(path):
     """
 
     base = os.path.basename(path)
+    base = base.rstrip(".git")
     tiberium_path = os.path.join(path, "tiberium")
     sun_path = os.path.join(tiberium_path, "%s.sun" % base)
     if os.path.exists(tiberium_path): os.remove(sun_path)
@@ -121,6 +122,7 @@ def generate_sun(path):
 
 def deploy_sun(path):
     base = os.path.basename(path)
+    base = base.rstrip(".git")
     tiberium_path = os.path.join(path, "tiberium")
     sun_path = os.path.join(tiberium_path, "%s.sun" % base)
     sun_file = open(sun_path, "rb")
