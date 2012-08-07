@@ -39,10 +39,12 @@ __license__ = "GNU General Public License (GPL), Version 3"
 
 import os
 import sys
+import json
 import shutil
 import getopt
 import tarfile
 import tempfile
+import cStringIO
 import subprocess
 
 import utils.http_util
@@ -97,9 +99,11 @@ def process_requirements(path):
         os.chdir(current_path)
 
 def process_repo(path):
-    names = os.listdir(path)
+    if has_requirements(path): process_requirements(path)
 
-    if "requirements.txt" in names: process_requirements(path)
+def has_requirements(path):
+    names = os.listdir(path)
+    return "requirements.txt" in names
 
 def generate_sun(path):
     """
@@ -120,6 +124,20 @@ def generate_sun(path):
     else: os.makedirs(tiberium_path)
 
     _tar = tarfile.TarFile(sun_path, "w")
+
+    sun = {
+        "name" : base,
+        "venv" : has_requirements(path)
+    }
+
+    buffer = cStringIO.StringIO()
+    json.dump(sun, buffer)
+    buffer_size = buffer.tell()
+    buffer.seek(0)
+
+    tar_info = tarfile.TarInfo("sun.json")
+    tar_info.size = buffer_size
+    _tar.addfile(tar_info, buffer)
 
     try:
         def add_sun(arg, dirname, names):
@@ -162,8 +180,15 @@ def execute_sun(sun_path, env = {}, sync = True):
     try: _tar.extractall(temp_path)
     finally: _tar.close()
 
+    sun_path = os.path.join(temp_path, "sun.json")
+    sun_file = open(sun_path, "r")
+    try: sun = json.load(sun_file)
+    finally: sun_file.close()
+
     procfile_path = os.path.join(temp_path, "Procfile")
     procfile = _read_procfile(procfile_path)
+
+    venv = sun.get("venv", False)
 
     current_path = os.getcwd()
     os.chdir(temp_path)
@@ -174,8 +199,7 @@ def execute_sun(sun_path, env = {}, sync = True):
         web_exec = procfile["web"]
         web_exec_l = web_exec.split()
 
-        is_venv = True #@TODO: HARDCODED MUST SOFTCODE THIS
-        is_venv and _apply_venv(temp_path, web_exec_l)
+        venv and _apply_venv(temp_path, web_exec_l)
 
         process = subprocess.Popen(web_exec_l, shell = False, env = env)
         sync and process.wait()
