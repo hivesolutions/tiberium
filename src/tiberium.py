@@ -47,7 +47,9 @@ import subprocess
 
 import utils.http_util
 
-SOUL_URL = "http://sandbox.hive:5000"
+SOUL_URL = "http://repo.tiberium"
+""" The default url to be used to access the
+tiberium soul repository for the tiberium actions """
 
 def create_repo(path):
     if not os.path.exists(path): os.makedirs(path)
