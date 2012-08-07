@@ -120,7 +120,7 @@ def generate_sun(path):
     base = base.rstrip(".git")
     tiberium_path = os.path.join(path, "tiberium")
     sun_path = os.path.join(tiberium_path, "%s.sun" % base)
-    if os.path.exists(tiberium_path): os.remove(sun_path)
+    if os.path.exists(tiberium_path): os.path.exists(sun_path) and os.remove(sun_path)
     else: os.makedirs(tiberium_path)
 
     _tar = tarfile.TarFile(sun_path, "w")
