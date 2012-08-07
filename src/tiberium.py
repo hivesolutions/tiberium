@@ -51,6 +51,13 @@ SOUL_URL = "http://repo.tiberium"
 """ The default url to be used to access the
 tiberium soul repository for the tiberium actions """
 
+VENV_EXECUTION = {
+    "nt" : ["venv\\Scripts\\activate.bat"],
+    "default" : ["source", "venv/bin/activate"]
+}
+""" The map defining the various execution commands to
+be used to start the venv environment """
+
 def create_repo(path):
     if not os.path.exists(path): os.makedirs(path)
 
@@ -157,8 +164,13 @@ def execute_sun(sun_path, env = {}, sync = True):
     try:
         env = dict(os.environ.items() + env.items())
 
+        os_name = os.name
+        default = VENV_EXECUTION.get("default", [])
+        venv_l = VENV_EXECUTION.get(os_name, default)
+
         web_exec = procfile["web"]
         web_exec_l = web_exec.split()
+        web_exec_l = venv_l + web_exec_l
         process = subprocess.Popen(
             web_exec_l, stdout = sys.stdout, stderr = sys.stderr, shell = False, env = env
         )
