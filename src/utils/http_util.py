@@ -47,7 +47,7 @@ message as the separator between items """
 
 def post_multipart(url, fields = (), files = ()):
     url_parsing = urlparse.urlparse(url)
-    host = url_parsing.netloc
+    host = url_parsing.hostname
     port = url_parsing.port
     path = url_parsing.path
     return _post_multipart(host, port, path, fields, files)
