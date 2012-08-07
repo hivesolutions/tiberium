@@ -47,7 +47,7 @@ import subprocess
 
 import utils.http_util
 
-SOUL_URL = "http://srio.hive:5000"
+SOUL_URL = "http://sandbox.hive:5000"
 
 def create_repo(path):
     if not os.path.exists(path): os.makedirs(path)
