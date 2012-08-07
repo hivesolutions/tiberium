@@ -52,8 +52,8 @@ SOUL_URL = "http://admin.tiberium"
 tiberium soul repository for the tiberium actions """
 
 VENV_EXECUTION = {
-    "nt" : ["venv\\Scripts\\activate.bat", "&&"],
-    "default" : ["source", "venv/bin/activate", "&&"]
+    "nt" : ["venv\\Scripts\\activate.bat"],
+    "default" : ["sh", "venv/bin/activate"]
 }
 """ The map defining the various execution commands to
 be used to start the venv environment """
@@ -167,13 +167,11 @@ def execute_sun(sun_path, env = {}, sync = True):
         os_name = os.name
         default = VENV_EXECUTION.get("default", [])
         venv_l = VENV_EXECUTION.get(os_name, default)
+        subprocess.Popen(venv_l, shell = False, env = env).wait()
 
         web_exec = procfile["web"]
         web_exec_l = web_exec.split()
-        web_exec_l = venv_l + web_exec_l
-        process = subprocess.Popen(
-            web_exec_l, stdout = sys.stdout, stderr = sys.stderr, shell = False, env = env
-        )
+        process = subprocess.Popen(web_exec_l, shell = False, env = env)
         sync and process.wait()
     finally:
         os.chdir(current_path)
