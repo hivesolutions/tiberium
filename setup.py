@@ -51,6 +51,11 @@ setuptools.setup(
     keywords = "tiberium platform service",
     url = "http://tiberium.com",
     zip_safe = True,
+    scripts = [
+        "scripts/pypi/tiberium_pypi.py",
+        "scripts/pypi/tiberium.bat",
+        "scripts/pypi/tiberium.sh"
+    ],
     py_modules = [
         "tiberium"
     ],
