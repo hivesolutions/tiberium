@@ -47,13 +47,13 @@ import subprocess
 
 import utils.http_util
 
-SOUL_URL = "http://repo.tiberium"
+SOUL_URL = "http://admin.tiberium"
 """ The default url to be used to access the
 tiberium soul repository for the tiberium actions """
 
 VENV_EXECUTION = {
-    "nt" : ["venv\\Scripts\\activate.bat"],
-    "default" : ["source", "venv/bin/activate"]
+    "nt" : ["venv\\Scripts\\activate.bat", "&&"],
+    "default" : ["source", "venv/bin/activate", "&&"]
 }
 """ The map defining the various execution commands to
 be used to start the venv environment """
