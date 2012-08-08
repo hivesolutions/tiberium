@@ -88,7 +88,8 @@ def process_requirements(path):
     current_path = os.getcwd()
     os.chdir(path)
     try:
-        return_value = subprocess.call("virtualenv venv --distribute", shell = True)
+        _has_venv = has_venv(path)
+        return_value = subprocess.call("virtualenv venv --distribute", shell = True) if not _has_venv else 0
         if return_value: raise RuntimeError("Problem setting the virtual environment")
 
         if os.name == "nt": install_command = "venv/Scripts/pip install -r requirements.txt"
@@ -104,6 +105,10 @@ def process_repo(path):
 def has_requirements(path):
     names = os.listdir(path)
     return "requirements.txt" in names
+
+def has_venv(path):
+    names = os.listdir(path)
+    return "venv" in names
 
 def generate_sun(path):
     """
