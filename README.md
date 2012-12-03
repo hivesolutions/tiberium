@@ -1,5 +1,5 @@
 # [Tiberium System](http://tiberiumapp.com)
-The Tiberium system is an open platform to deploy application is a PAAS phlosophy structure.
+The Tiberium system is an open platform to deploy application is a [PaaS](http://en.wikipedia.org/wiki/Platform_as_a_service) philosophy structure.
 
 The file contains structures for the creation of the sun files required for deployemtn in the various tiberium nodes.
 
