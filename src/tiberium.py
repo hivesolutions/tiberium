@@ -183,8 +183,8 @@ def execute_repo(path):
     generate_sun(path)
     deploy_sun(path)
 
-def execute_sun(sun_path, env = {}, sync = True):
-    temp_path = tempfile.mkdtemp()
+def execute_sun(sun_path, temp_path = None, env = {}, sync = True):
+    temp_path = temp_path or tempfile.mkdtemp()
     _tar = tarfile.TarFile(sun_path, "r")
     try: _tar.extractall(temp_path)
     finally: _tar.close()
