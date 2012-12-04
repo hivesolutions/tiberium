@@ -221,12 +221,14 @@ def execute_sun(sun_path, temp_path = None, env = {}, sync = True):
 def _apply_venv(temp_path, exec_list):
     os_name = os.name
     if os_name == "nt": return
+    
+    path = os.environ.get("PATH", "")
 
     venv_path = VENV_PATHS.get("default", "")
     venv_path = VENV_PATHS.get(os_name, venv_path)
 
     venv_path_abs = os.path.join(temp_path, venv_path)
-    exec_list.insert(0, "PATH=%s:$PATH" % venv_path_abs)
+    exec_list.insert(0, "PATH=%s:%s" % (venv_path_abs, path))
     exec_list.insert(0, "env")
 
 def _read_procfile(path):
