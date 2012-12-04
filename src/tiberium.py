@@ -68,8 +68,12 @@ VENV_PATHS = {
 be used to start the venv environment """
 
 def create_repo(path):
+    # in case the path to the repository path does not exists
+    # must create the complete set of directories
     if not os.path.exists(path): os.makedirs(path)
 
+    # retrieves the current path in order to be saved and then
+    # changes the current directory into the repository path
     current_path = os.getcwd()
     os.chdir(path)
     try:
