@@ -221,7 +221,7 @@ def execute_sun(sun_path, temp_path = None, env = {}, sync = True):
 def _apply_venv(temp_path, exec_list):
     os_name = os.name
     if os_name == "nt": return
-    
+
     path = os.environ.get("PATH", "")
 
     venv_path = VENV_PATHS.get("default", "")
