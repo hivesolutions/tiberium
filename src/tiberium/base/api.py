@@ -179,8 +179,12 @@ def run_sun(path = None, temp_path = None, env = {}, sync = True):
 
         venv and repo.apply_venv(web_exec_l, env)
 
-        process = subprocess.Popen(web_exec_l, shell = True, env = env)
-        sync and process.wait()
+        process = tiberium.utils.command(
+            web_exec_l,
+            shell = True,
+            env = env,
+            wait = sync
+        )
     finally:
         os.chdir(current_path)
         sync and shutil.rmtree(temp_path)
