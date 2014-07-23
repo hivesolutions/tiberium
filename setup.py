@@ -43,7 +43,7 @@ import setuptools
 
 setuptools.setup(
     name = "tiberium",
-    version = "0.1.3",
+    version = "0.1.4",
     author = "Hive Solutions Lda.",
     author_email = "development@hive.pt",
     description = "Tiberium System",
