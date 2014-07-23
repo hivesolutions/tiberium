@@ -19,9 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Hive Tiberium System. If not, see <http://www.gnu.org/licenses/>.
 
-__author__ = "João Magalhães <joamag@hive.pt>"
-""" The author(s) of the module """
-
 __version__ = "1.0.0"
 """ The version of the module """
 
@@ -37,41 +34,8 @@ __copyright__ = "Copyright (c) 2008-2014 Hive Solutions Lda."
 __license__ = "GNU General Public License (GPL), Version 3"
 """ The license for the module """
 
-import os
-import glob
-import setuptools
+from . import main
+from . import utils
 
-setuptools.setup(
-    name = "tiberium",
-    version = "0.1.0",
-    author = "Hive Solutions Lda.",
-    author_email = "development@hive.pt",
-    description = "Tiberium System",
-    license = "GNU General Public License (GPL), Version 3",
-    keywords = "tiberium platform service",
-    url = "http://tiberium.com",
-    zip_safe = True,
-    py_modules = [
-        "tiberium"
-    ],
-    packages = [
-        "utils"
-    ],
-    package_dir = {
-        "" : os.path.normpath("src")
-    },
-    entry_points = {
-        "console_scripts" : [
-            "tiberium = tiberium.main:run"
-        ]
-    },
-    classifiers = [
-        "Development Status :: 3 - Alpha",
-        "Topic :: Utilities",
-        "License :: OSI Approved :: GNU General Public License (GPL)",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 2.6",
-        "Programming Language :: Python :: 2.7"
-    ]
-)
+from .main import *
+from .utils import *

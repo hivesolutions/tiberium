@@ -47,7 +47,7 @@ import tempfile
 import cStringIO
 import subprocess
 
-import utils.http_util
+import tiberium.utils
 
 SOUL_URL = "http://admin.tiberium"
 """ The default url to be used to access the
@@ -171,7 +171,7 @@ def deploy_sun(path):
     sun_file = open(sun_path, "rb")
     try: sun_contents = sun_file.read()
     finally: sun_file.close()
-    utils.http_util.post_multipart(
+    tiberium.utils.post_multipart(
         SOUL_URL + "/deploy",
         (("name", base),),
         (("file", base, sun_contents),)
