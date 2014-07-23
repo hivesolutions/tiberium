@@ -41,7 +41,7 @@ import sys
 
 from tiberium.base import api
 
-def build(path):
+def build(path = "."):
     api.build_sun(path)
 
 def upload(path):
