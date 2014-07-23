@@ -44,26 +44,22 @@ import shutil
 import getopt
 import tarfile
 import tempfile
-import cStringIO
 import subprocess
 
-import tiberium.utils
+from tiberium.base import build
+from tiberium.base import format
 
-SOUL_URL = "http://admin.tiberium"
-""" The default url to be used to access the
-tiberium soul repository for the tiberium actions """
-
-SEPARATORS = {
-    "nt" : ";",
-    "default" : ":"
-}
+SEPARATORS = dict(
+    nt = ";",
+    default = ":"
+)
 """ The map defining the various path separators to
 be used to start the venv environment """
 
-VENV_PATHS = {
-    "nt" : "venv\Scripts",
-    "default" : "venv/bin"
-}
+VENV_PATHS = dict(
+    nt = "venv\Scripts",
+    default = "venv/bin"
+)
 """ The map defining the various paths for venv to
 be used to start the venv environment """
 
@@ -88,100 +84,11 @@ def create_repo(path):
     finally:
         os.chdir(current_path)
 
-def process_requirements(path):
-    current_path = os.getcwd()
-    os.chdir(path)
-    try:
-        _has_venv = has_venv(path)
-        return_value = subprocess.call("virtualenv venv --distribute", shell = True) if not _has_venv else 0
-        if return_value: raise RuntimeError("Problem setting the virtual environment")
-
-        if os.name == "nt": install_command = "venv/Scripts/pip install -r requirements.txt"
-        else: install_command = "venv/bin/pip install -r requirements.txt"
-        return_value = subprocess.call(install_command, shell = True)
-        if return_value: raise RuntimeError("Problem installing pip requirements")
-    finally:
-        os.chdir(current_path)
-
-def process_repo(path):
-    if has_requirements(path): process_requirements(path)
-
-def has_requirements(path):
-    names = os.listdir(path)
-    return "requirements.txt" in names
-
-def has_venv(path):
-    names = os.listdir(path)
-    return "venv" in names
-
-def generate_sun(path):
-    """
-    Generates a sun file for the provided repository
-    path, the resulting file should be able to be
-    distributed across nodes transparently.
-
-    @type path: String
-    @param path: The path to the repository directory to
-    be used in the construction of the sun file.
-    """
-
-    base = os.path.basename(path)
-    base = base.rstrip(".git")
-    tiberium_path = os.path.join(path, "tiberium")
-    sun_path = os.path.join(tiberium_path, "%s.sun" % base)
-    if os.path.exists(tiberium_path): os.path.exists(sun_path) and os.remove(sun_path)
-    else: os.makedirs(tiberium_path)
-
-    _tar = tarfile.TarFile(sun_path, "w")
-
-    sun = dict(
-        name = base,
-        venv = has_requirements(path)
-    )
-
-    buffer = cStringIO.StringIO()
-    json.dump(sun, buffer)
-    buffer_size = buffer.tell()
-    buffer.seek(0)
-
-    tar_info = tarfile.TarInfo("sun.json")
-    tar_info.size = buffer_size
-    _tar.addfile(tar_info, buffer)
-
-    try:
-        def add_sun(arg, dirname, names):
-            if ".git" in names: names.remove(".git")
-            if "tiberium" in names: names.remove("tiberium")
-
-            for name in names:
-                _path = os.path.join(dirname, name)
-                if os.path.isdir(_path): continue
-                relative_path = os.path.relpath(_path, path)
-                _tar.add(_path, relative_path)
-
-        os.path.walk(path, add_sun, None)
-    finally:
-        _tar.close()
-
-def deploy_sun(path):
-    base = os.path.basename(path)
-    base = base.rstrip(".git")
-    tiberium_path = os.path.join(path, "tiberium")
-    sun_path = os.path.join(tiberium_path, "%s.sun" % base)
-    sun_file = open(sun_path, "rb")
-    try: sun_contents = sun_file.read()
-    finally: sun_file.close()
-    tiberium.utils.post_multipart(
-        SOUL_URL + "/deploy",
-        (("name", base),),
-        (("file", base, sun_contents),)
-    )
-
-def execute_repo(path):
+def execute_repo(path, deploy = True):
     path = os.path.abspath(path)
-    process_repo(path)
-    generate_sun(path)
-    deploy_sun(path)
+    build.process_repo(path)
+    build.build_sun(path)
+    if deploy: build.deploy_sun(path)
 
 def execute_sun(sun_path, temp_path = None, env = {}, sync = True):
     temp_path = temp_path or tempfile.mkdtemp()
@@ -195,7 +102,7 @@ def execute_sun(sun_path, temp_path = None, env = {}, sync = True):
     finally: sun_file.close()
 
     procfile_path = os.path.join(temp_path, "Procfile")
-    procfile = _read_procfile(procfile_path)
+    procfile = format.read_procfile(procfile_path)
 
     venv = sun.get("venv", False)
 
@@ -208,7 +115,7 @@ def execute_sun(sun_path, temp_path = None, env = {}, sync = True):
         web_exec = procfile["web"]
         web_exec_l = web_exec.split()
 
-        venv and _apply_venv(temp_path, web_exec_l)
+        venv and apply_venv(temp_path, web_exec_l)
 
         process = subprocess.Popen(web_exec_l, shell = False, env = env)
         sync and process.wait()
@@ -218,7 +125,7 @@ def execute_sun(sun_path, temp_path = None, env = {}, sync = True):
 
     return process, temp_path
 
-def _apply_venv(temp_path, exec_list):
+def apply_venv(temp_path, exec_list):
     os_name = os.name
     if os_name == "nt": return
 
@@ -230,25 +137,6 @@ def _apply_venv(temp_path, exec_list):
     venv_path_abs = os.path.join(temp_path, venv_path)
     exec_list.insert(0, "PATH=%s:%s" % (venv_path_abs, path))
     exec_list.insert(0, "env")
-
-def _read_procfile(path):
-    file = open(path, "r")
-    try: contents = file.read()
-    finally: file.close()
-
-    procfile = dict()
-
-    lines = contents.split("\n")
-    for line in lines:
-        line = line.strip()
-        if not line: continue
-
-        key, value = line.split(":", 1)
-        key = key.strip()
-        value = value.strip()
-        procfile[key] = value
-
-    return procfile
 
 def run():
     try:
