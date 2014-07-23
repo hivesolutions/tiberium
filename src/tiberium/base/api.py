@@ -174,7 +174,7 @@ def run_sun(path, temp_path = None, env = {}, sync = True):
         web_exec = procfile["web"]
         web_exec_l = web_exec.split()
 
-        venv and repo.apply_venv(temp_path, web_exec_l)
+        venv and repo.apply_venv(web_exec_l, env)
 
         process = subprocess.Popen(web_exec_l, shell = True, env = env)
         sync and process.wait()

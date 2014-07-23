@@ -41,12 +41,13 @@ import os
 import shutil
 import subprocess
 
-VENV_PATHS = dict(
-    nt = "venv\Scripts",
+VENV_PATH = dict(
+    nt = "venv\\Scripts",
     default = "venv/bin"
 )
 """ The map defining the various paths for venv to
-be used to start the venv environment """
+be used to start the venv environment, this map
+associates the operative system with the target path """
 
 def process_repo(path):
     if has_requirements(path): process_requirements(path)
@@ -82,15 +83,17 @@ def has_venv(path):
     names = os.listdir(path)
     return "venv" in names
 
-def apply_venv(temp_path, exec_list):
-    os_name = os.name
-    if os_name == "nt": return
+def apply_venv(exec_list, env):
+    path = VENV_PATH.get("default", None)
+    path = VENV_PATH.get(os.name, path)
+    path = os.path.abspath(path)
+    path = os.path.normpath(path)
 
-    path = os.environ.get("PATH", "")
+    exec_list.insert(0, "&&")
 
-    venv_path = VENV_PATHS.get("default", "")
-    venv_path = VENV_PATHS.get(os_name, venv_path)
-
-    venv_path_abs = os.path.join(temp_path, venv_path)
-    exec_list.insert(0, "PATH=%s:%s" % (venv_path_abs, path))
-    exec_list.insert(0, "env")
+    if os.name == "nt":
+        exec_list.insert(0, "venv\\Scripts\\activate.bat")
+        env["PATH"] = path + ";" + env["PATH"]
+    else:
+        exec_list.insert(0, "venv/bin/activate")
+        env["PATH"] = path + ":" + env["PATH"]
