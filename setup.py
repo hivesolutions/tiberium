@@ -43,7 +43,7 @@ import setuptools
 
 setuptools.setup(
     name = "tiberium",
-    version = "0.1.0",
+    version = "0.1.1",
     author = "Hive Solutions Lda.",
     author_email = "development@hive.pt",
     description = "Tiberium System",
@@ -51,11 +51,9 @@ setuptools.setup(
     keywords = "tiberium platform service",
     url = "http://tiberium.com",
     zip_safe = True,
-    py_modules = [
-        "tiberium"
-    ],
     packages = [
-        "utils"
+        "tiberium",
+        "tiberium.utils"
     ],
     package_dir = {
         "" : os.path.normpath("src")
