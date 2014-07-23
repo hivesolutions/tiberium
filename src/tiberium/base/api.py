@@ -19,9 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Hive Tiberium System. If not, see <http://www.gnu.org/licenses/>.
 
-__author__ = "João Magalhães <joamag@hive.pt>"
-""" The author(s) of the module """
-
 __version__ = "1.0.0"
 """ The version of the module """
 
@@ -39,15 +36,40 @@ __license__ = "GNU General Public License (GPL), Version 3"
 
 import os
 import json
+import shutil
 import tarfile
+import tempfile
 import cStringIO
 import subprocess
 
 import tiberium.utils
 
+from tiberium.base import repo
+
 SOUL_URL = "http://admin.tiberium"
 """ The default url to be used to access the
 tiberium soul repository for the tiberium actions """
+
+def create_repo(path):
+    # in case the path to the repository path does not exists
+    # must create the complete set of directories
+    if not os.path.exists(path): os.makedirs(path)
+
+    # retrieves the current path in order to be saved and then
+    # changes the current directory into the repository path
+    current_path = os.getcwd()
+    os.chdir(path)
+    try:
+        return_value = subprocess.call("git init", shell = True)
+        if return_value: raise RuntimeError("Problem initializing git repository")
+
+        return_value = subprocess.call("git config core.worktree %s" % path, shell = True)
+        if return_value: raise RuntimeError("Problem configuring git repository")
+
+        return_value = subprocess.call("git config receive.denycurrentbranch ignore", shell = True)
+        if return_value: raise RuntimeError("Problem configuring git repository")
+    finally:
+        os.chdir(current_path)
 
 def build_sun(path):
     """
@@ -55,11 +77,20 @@ def build_sun(path):
     path, the resulting file should be able to be distributed
     across nodes transparently.
 
+    This building operation will start by processing the repo
+    directory so that the files are ready for building.
+
     @type path: String
     @param path: The path to the repository directory to
     be used in the construction of the sun file.
+    @rtype: String
+    @return: The path of the sun file that has just been generated
+    from the provided repository (ready for usage).
     """
 
+    repo.process_repo(path)
+
+    path = os.path.abspath(path)
     base = os.path.basename(path)
     base = base.rstrip(".git")
     tiberium_path = os.path.join(path, "tiberium")
@@ -71,7 +102,7 @@ def build_sun(path):
 
     sun = dict(
         name = base,
-        venv = has_requirements(path)
+        venv = repo.has_requirements(path)
     )
 
     buffer = cStringIO.StringIO()
@@ -98,7 +129,10 @@ def build_sun(path):
     finally:
         _tar.close()
 
-def deploy_sun(path, base_url = SOUL_URL):
+    return sun_path
+
+def upload_sun(path, base_url = SOUL_URL):
+    path = os.path.abspath(path)
     base = os.path.basename(path)
     base = base.rstrip(".git")
     tiberium_path = os.path.join(path, "tiberium")
@@ -112,28 +146,37 @@ def deploy_sun(path, base_url = SOUL_URL):
         (("file", base, sun_contents),)
     )
 
-def process_repo(path):
-    if has_requirements(path): process_requirements(path)
+def run_sun(path, temp_path = None, env = {}, sync = True):
+    temp_path = temp_path or tempfile.mkdtemp()
+    _tar = tarfile.TarFile(path, "r")
+    try: _tar.extractall(temp_path)
+    finally: _tar.close()
 
-def process_requirements(path):
+    sun_path = os.path.join(temp_path, "sun.json")
+    sun_file = open(sun_path, "r")
+    try: sun = json.load(sun_file)
+    finally: sun_file.close()
+
+    procfile_path = os.path.join(temp_path, "Procfile")
+    procfile = format.read_procfile(procfile_path)
+
+    venv = sun.get("venv", False)
+
     current_path = os.getcwd()
-    os.chdir(path)
-    try:
-        _has_venv = has_venv(path)
-        return_value = subprocess.call("virtualenv venv --distribute", shell = True) if not _has_venv else 0
-        if return_value: raise RuntimeError("Problem setting the virtual environment")
+    os.chdir(temp_path)
 
-        if os.name == "nt": install_command = "venv/Scripts/pip install -r requirements.txt"
-        else: install_command = "venv/bin/pip install -r requirements.txt"
-        return_value = subprocess.call(install_command, shell = True)
-        if return_value: raise RuntimeError("Problem installing pip requirements")
+    try:
+        env = dict(os.environ.items() + env.items())
+
+        web_exec = procfile["web"]
+        web_exec_l = web_exec.split()
+
+        venv and repo.apply_venv(temp_path, web_exec_l)
+
+        process = subprocess.Popen(web_exec_l, shell = False, env = env)
+        sync and process.wait()
     finally:
         os.chdir(current_path)
-        
-def has_requirements(path):
-    names = os.listdir(path)
-    return "requirements.txt" in names
+        sync and shutil.rmtree(temp_path)
 
-def has_venv(path):
-    names = os.listdir(path)
-    return "venv" in names
+    return process, temp_path

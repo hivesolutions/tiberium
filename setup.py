@@ -53,6 +53,7 @@ setuptools.setup(
     zip_safe = True,
     packages = [
         "tiberium",
+        "tiberium.base",
         "tiberium.utils"
     ],
     package_dir = {
