@@ -44,10 +44,10 @@ from tiberium.base import api
 def build(path = "."):
     api.build_sun(path)
 
-def upload(path):
+def upload(path = None):
     api.upload_sun(path)
 
-def run(path):
+def run(path = None):
     api.run_sun(path)
 
 def main():

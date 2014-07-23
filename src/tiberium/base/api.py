@@ -134,7 +134,8 @@ def build_sun(path):
 
     return sun_path
 
-def upload_sun(path, base_url = SOUL_URL):
+def upload_sun(path = None, base_url = SOUL_URL):
+    if path == None: path = tiberium.utils.local_sun()
     path = os.path.abspath(path)
     base = os.path.basename(path)
     base = base.rstrip(".git")
@@ -149,7 +150,9 @@ def upload_sun(path, base_url = SOUL_URL):
         (("file", base, sun_contents),)
     )
 
-def run_sun(path, temp_path = None, env = {}, sync = True):
+def run_sun(path = None, temp_path = None, env = {}, sync = True):
+    if path == None: path = tiberium.utils.local_sun()
+
     temp_path = temp_path or tempfile.mkdtemp()
     _tar = tarfile.TarFile(path, "r")
     try: _tar.extractall(temp_path)
