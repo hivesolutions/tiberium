@@ -176,7 +176,7 @@ def run_sun(path, temp_path = None, env = {}, sync = True):
 
         venv and repo.apply_venv(temp_path, web_exec_l)
 
-        process = subprocess.Popen(web_exec_l, shell = False, env = env)
+        process = subprocess.Popen(web_exec_l, shell = True, env = env)
         sync and process.wait()
     finally:
         os.chdir(current_path)
