@@ -58,7 +58,7 @@ def process_requirements(path):
         return_value = subprocess.call("virtualenv venv --distribute", shell = True) if not _has_venv else 0
         if return_value: raise RuntimeError("Problem setting the virtual environment")
 
-        if os.name == "nt": install_command = "venv/Scripts/pip install -r requirements.txt"
+        if os.name == "nt": install_command = "venv\\Scripts\\pip install -r requirements.txt"
         else: install_command = "venv/bin/pip install -r requirements.txt"
         return_value = subprocess.call(install_command, shell = True)
         if return_value: raise RuntimeError("Problem installing pip requirements")
