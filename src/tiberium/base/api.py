@@ -129,6 +129,8 @@ def build_sun(path):
     finally:
         _tar.close()
 
+    repo.cleanup_repo(path)
+
     return sun_path
 
 def upload_sun(path, base_url = SOUL_URL):

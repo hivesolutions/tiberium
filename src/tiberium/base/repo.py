@@ -38,6 +38,7 @@ __license__ = "GNU General Public License (GPL), Version 3"
 """ The license for the module """
 
 import os
+import shutil
 import subprocess
 
 VENV_PATHS = dict(
@@ -49,6 +50,9 @@ be used to start the venv environment """
 
 def process_repo(path):
     if has_requirements(path): process_requirements(path)
+
+def cleanup_repo(path):
+    if has_requirements(path): cleanup_requirements(path)
 
 def process_requirements(path):
     current_path = os.getcwd()
@@ -64,6 +68,11 @@ def process_requirements(path):
         if return_value: raise RuntimeError("Problem installing pip requirements")
     finally:
         os.chdir(current_path)
+
+def cleanup_requirements(path):
+    current_path = os.getcwd()
+    venv_path = os.path.join(current_path, "venv")
+    shutil.rmtree(venv_path, ignore_errors = True)
 
 def has_requirements(path):
     names = os.listdir(path)
