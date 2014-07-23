@@ -43,7 +43,7 @@ import setuptools
 
 setuptools.setup(
     name = "tiberium",
-    version = "0.1.1",
+    version = "0.1.2",
     author = "Hive Solutions Lda.",
     author_email = "development@hive.pt",
     description = "Tiberium System",
@@ -61,7 +61,7 @@ setuptools.setup(
     },
     entry_points = {
         "console_scripts" : [
-            "tiberium = tiberium.main:run"
+            "tiberium = tiberium.base.common:main"
         ]
     },
     classifiers = [
