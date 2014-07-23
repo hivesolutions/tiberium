@@ -253,8 +253,8 @@ def _read_procfile(path):
 def run():
     try:
         options, _args = getopt.getopt(sys.argv[1:], "r:s:", ["repo=", "sun="])
-    except getopt.GetoptError, exception:
-        print str(exception)
+    except getopt.GetoptError as exception:
+        print(str(exception))
         sys.exit(2)
 
     repo_path = None
