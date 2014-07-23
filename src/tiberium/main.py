@@ -134,10 +134,10 @@ def generate_sun(path):
 
     _tar = tarfile.TarFile(sun_path, "w")
 
-    sun = {
-        "name" : base,
-        "venv" : has_requirements(path)
-    }
+    sun = dict(
+        name = base,
+        venv = has_requirements(path)
+    )
 
     buffer = cStringIO.StringIO()
     json.dump(sun, buffer)
@@ -236,7 +236,7 @@ def _read_procfile(path):
     try: contents = file.read()
     finally: file.close()
 
-    procfile = {}
+    procfile = dict()
 
     lines = contents.split("\n")
     for line in lines:
