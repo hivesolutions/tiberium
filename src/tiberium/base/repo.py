@@ -96,5 +96,5 @@ def apply_venv(exec_list, env):
         env["PATH"] = path + ";" + env["PATH"]
     else:
         exec_list.insert(0, "venv/bin/activate")
-        exec_list.insert(0, ".")
+        exec_list.insert(0, "source")
         env["PATH"] = path + ":" + env["PATH"]
