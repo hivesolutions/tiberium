@@ -37,9 +37,9 @@ __license__ = "GNU General Public License (GPL), Version 3"
 import os
 import json
 import shutil
+import legacy
 import tarfile
 import tempfile
-import cStringIO
 import subprocess
 
 import tiberium.utils
@@ -106,7 +106,7 @@ def build_sun(path):
         venv = repo.has_requirements(path)
     )
 
-    buffer = cStringIO.StringIO()
+    buffer = legacy.StringIO()
     json.dump(sun, buffer)
     buffer_size = buffer.tell()
     buffer.seek(0)
