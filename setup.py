@@ -58,6 +58,9 @@ setuptools.setup(
     package_dir = {
         "" : os.path.normpath("src")
     },
+    install_requires = [
+        "legacy"
+    ],
     entry_points = {
         "console_scripts" : [
             "tiberium = tiberium.base.common:main"
