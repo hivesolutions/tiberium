@@ -44,8 +44,8 @@ import subprocess
 
 import tiberium.utils
 
-from tiberium.base import repo
-from tiberium.base import format
+from . import repo
+from . import format
 
 SOUL_URL = "http://admin.tiberium"
 """ The default url to be used to access the

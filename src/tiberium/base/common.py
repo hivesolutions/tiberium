@@ -39,7 +39,7 @@ __license__ = "GNU General Public License (GPL), Version 3"
 
 import sys
 
-from tiberium.base import api
+from . import api
 
 def build(path = "."):
     api.build_sun(path)
