@@ -34,10 +34,10 @@ __copyright__ = "Copyright (c) 2008-2014 Hive Solutions Lda."
 __license__ = "GNU General Public License (GPL), Version 3"
 """ The license for the module """
 
-from . import shell
 from . import http
 from . import path
+from . import shell
 
-from .shell import *
-from .http import *
-from .path import *
+from .http import post_multipart
+from .path import local_sun
+from .shell import command

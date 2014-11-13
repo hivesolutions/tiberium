@@ -37,8 +37,7 @@ __copyright__ = "Copyright (c) 2008-2014 Hive Solutions Lda."
 __license__ = "GNU General Public License (GPL), Version 3"
 """ The license for the module """
 
-import httplib
-import urlparse
+import legacy
 import mimetypes
 
 BOUNDARY = "----------BnB31YzM9ukx7cEMCbBbEPUPR8Dwek8LEYyK7xVxm2zbixgeqQS8d7WkXYNUsUWM_$"
@@ -46,7 +45,7 @@ BOUNDARY = "----------BnB31YzM9ukx7cEMCbBbEPUPR8Dwek8LEYyK7xVxm2zbixgeqQS8d7WkXY
 message as the separator between items """
 
 def post_multipart(url, fields = (), files = ()):
-    url_parsing = urlparse.urlparse(url)
+    url_parsing = legacy.urlparse(url)
     host = url_parsing.hostname
     port = url_parsing.port
     path = url_parsing.path
@@ -54,7 +53,7 @@ def post_multipart(url, fields = (), files = ()):
 
 def _post_multipart(host, port = 80, path = "/", fields = (), files = ()):
     content_type, body = _encode_multipart(fields, files)
-    http_client = httplib.HTTP(host, port)
+    http_client = legacy.HTTPConnection(host, port)
     http_client.putrequest("POST", path)
     http_client.putheader("content-type", content_type)
     http_client.putheader("content-length", str(len(body)))

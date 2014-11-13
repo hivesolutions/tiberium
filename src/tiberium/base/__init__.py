@@ -39,7 +39,8 @@ from . import common
 from . import format
 from . import repo
 
-from .api import *
-from .common import *
-from .format import *
-from .repo import *
+from .api import create_repo, build_sun, upload_sun, run_sun
+from .common import build, upload, run, main
+from .format import read_procfile
+from .repo import process_repo, cleanup_repo, process_requirements, cleanup_requirements,\
+    has_requirements, has_venv, apply_venv

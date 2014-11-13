@@ -126,7 +126,7 @@ def build_sun(path):
                 relative_path = os.path.relpath(_path, path)
                 _tar.add(_path, relative_path)
 
-        os.path.walk(path, add_sun, None)
+        legacy.walk(path, add_sun, None)
     finally:
         _tar.close()
 
