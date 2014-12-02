@@ -1,5 +1,5 @@
 *.pyc
 
-/dist/
-/build/
-/src/tiberium.egg-info/
+/dist
+/build
+/src/tiberium.egg-info
