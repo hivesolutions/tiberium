@@ -84,11 +84,11 @@ def build_sun(path):
     This building operation will start by processing the repo
     directory so that the files are ready for building.
 
-    @type path: String
-    @param path: The path to the repository directory to
+    :type path: String
+    :param path: The path to the repository directory to
     be used in the construction of the sun file.
-    @rtype: String
-    @return: The path of the sun file that has just been generated
+    :rtype: String
+    :return: The path of the sun file that has just been generated
     from the provided repository (ready for usage).
     """
 
