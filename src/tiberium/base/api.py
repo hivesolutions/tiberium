@@ -51,7 +51,7 @@ from . import repo
 from . import format
 
 SOUL_URL = "http://admin.tiberium"
-""" The default url to be used to access the
+""" The default URL to be used to access the
 tiberium soul repository for the tiberium actions """
 
 def create_repo(path):
